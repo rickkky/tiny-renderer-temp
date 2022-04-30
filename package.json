@@ -1,0 +1,22 @@
+{
+    "name": "tiny-renderer",
+    "version": "0.1.0",
+    "description": "",
+    "keywords": [
+        "computer-graphics"
+    ],
+    "author": "rickkky <rickkky@foxmail.com>",
+    "main": "src/index.ts",
+    "homepage": "https://github.com/rickkky/tiny-renderer",
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/rickkky/tiny-renderer.git"
+    },
+    "bugs": {
+        "url": "https://github.com/rickkky/tiny-renderer/issues"
+    },
+    "scripts": {},
+    "devDependencies": {
+        "typescript": "^4.6.2"
+    }
+}
