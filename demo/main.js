@@ -1,4 +1,4 @@
-import { TinyRenderer, loadObjModel } from './tiny-renderer.js';
+import { TinyRenderer, loadObjModel } from '../dist/tiny-renderer.js';
 
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
