@@ -1,4 +1,5 @@
-import { Mesh } from 'webgl-obj-loader';
+import { isInside } from './triangle';
+import type { Vector2 } from './linear-algebra';
 
 // [r, g, b, a]
 type Color = [number, number, number, number];
@@ -14,7 +15,13 @@ export class TinyRenderer {
         const imageData = ctx.createImageData(width, height);
         const data = imageData.data;
 
-        data.fill(255);
+        // fill with black
+        for (let i = 0; i < data.length; i += 4) {
+            data[i + 0] = 0;
+            data[i + 1] = 0;
+            data[i + 2] = 0;
+            data[i + 3] = 255;
+        }
 
         this.#imageData = imageData;
     }
@@ -27,9 +34,10 @@ export class TinyRenderer {
         return this.#imageData.height;
     }
 
-    setPixel(x: number, y: number, color: Color) {
-        const offset =
-            (Math.trunc(y) * this.width + Math.trunc(x)) * BYTES_PER_PIXEL;
+    setPixel(v: Vector2, color: Color) {
+        const x = Math.trunc(v[0]);
+        const y = Math.trunc(v[1]);
+        const offset = (y * this.width + x) * BYTES_PER_PIXEL;
         for (let i = 0; i < BYTES_PER_PIXEL; i++) {
             this.#imageData.data[offset + i] = color[i];
         }
@@ -38,7 +46,9 @@ export class TinyRenderer {
     /**
      * Using Bresenham’s line drawing algorithm.
      */
-    drawLine(x0: number, y0: number, x1: number, y1: number, color: Color) {
+    drawLine(v0: Vector2, v1: Vector2, color: Color) {
+        let [x0, y0] = v0;
+        let [x1, y1] = v1;
         let steep = false;
 
         if (Math.abs(y1 - y0) > Math.abs(x1 - x0)) {
@@ -64,7 +74,7 @@ export class TinyRenderer {
 
         for (let x = x0; x <= x1; x += 1) {
             // if transposed, de−transpose
-            steep ? this.setPixel(y, x, color) : this.setPixel(x, y, color);
+            steep ? this.setPixel([y, x], color) : this.setPixel([x, y], color);
 
             carry += sy;
             // carry > 0.5
@@ -76,25 +86,21 @@ export class TinyRenderer {
         }
     }
 
-    drawMesh(mesh: Mesh, color: Color) {
-        const scale = (index: number) => {
-            const p: number[] = [];
-            // x, y are normalized coordinates between [-1,1]
-            let x = mesh.vertices[index + 0];
-            let y = mesh.vertices[index + 1];
-            // scale the x and y to the canvas size
-            p[0] = ((x + 1) / 2) * this.width;
-            p[1] = ((y + 1) / 2) * this.height;
-            return p;
-        };
+    drawTriangle(v0: Vector2, v1: Vector2, v2: Vector2, color: Color) {
+        const [x0, y0] = v0;
+        const [x1, y1] = v1;
+        const [x2, y2] = v2;
+        const xmin = Math.trunc(Math.min(x0, x1, x2));
+        const xmax = Math.trunc(Math.max(x0, x1, x2));
+        const ymin = Math.trunc(Math.min(y0, y1, y2));
+        const ymax = Math.trunc(Math.max(y0, y1, y2));
 
-        for (let i = 0; i < mesh.indices.length; i += 3) {
-            const p0 = scale(mesh.indices[i + 0] * 3);
-            const p1 = scale(mesh.indices[i + 1] * 3);
-            const p2 = scale(mesh.indices[i + 2] * 3);
-            this.drawLine(p0[0], p0[1], p1[0], p1[1], color);
-            this.drawLine(p1[0], p1[1], p2[0], p2[1], color);
-            this.drawLine(p2[0], p2[1], p0[0], p0[1], color);
+        for (let x = xmin; x <= xmax; x++) {
+            for (let y = ymin; y <= ymax; y++) {
+                if (isInside(v0, v1, v2, [x, y])) {
+                    this.setPixel([x, y], color);
+                }
+            }
         }
     }
 
