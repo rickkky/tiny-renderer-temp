@@ -1,13 +1,6 @@
 import { Mesh } from 'webgl-obj-loader';
 import type { TinyRenderer } from './tiny-renderer';
-import {
-    cross,
-    dot,
-    normalize,
-    subtract,
-    Vector2,
-    Vector3,
-} from './linear-algebra';
+import { cross, dot, normalize, subtract, Vector3 } from './linear-algebra';
 
 export async function loadObjModel(path: string) {
     const response = await fetch(path);
@@ -45,7 +38,7 @@ export function renderMesh(renderer: TinyRenderer, mesh: Mesh) {
         const n = normalize(cross(subtract(wc2, wc0), subtract(wc1, wc0)));
         const intensity = dot(n, light);
         if (intensity > 0) {
-            renderer.drawTriangle(sc0, sc1, sc2, [
+            renderer.triangle(sc0, sc1, sc2, [
                 255 * intensity,
                 255 * intensity,
                 255 * intensity,

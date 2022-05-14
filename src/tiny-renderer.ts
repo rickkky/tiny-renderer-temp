@@ -2,7 +2,7 @@ import type { Vector2, Vector3 } from './linear-algebra';
 import { barycentric } from './triangle';
 
 // [r, g, b, a]
-type Color = [number, number, number, number];
+export type Color = [number, number, number, number];
 
 const BYTES_PER_PIXEL = 4;
 
@@ -26,6 +26,7 @@ export class TinyRenderer {
         }
 
         this.#imageData = imageData;
+
         this.#zBuffer = new Array(width * height).fill(-Infinity);
     }
 
@@ -37,7 +38,7 @@ export class TinyRenderer {
         return this.#imageData.height;
     }
 
-    setPixel(v: Vector2, color: Color) {
+    pixel(v: Vector2, color: Color) {
         const x = Math.trunc(v[0]);
         const y = Math.trunc(v[1]);
         const offset = (y * this.width + x) * BYTES_PER_PIXEL;
@@ -47,9 +48,9 @@ export class TinyRenderer {
     }
 
     /**
-     * Using Bresenham’s line drawing algorithm.
+     * Bresenham’s line drawing algorithm.
      */
-    drawLine(v0: Vector2, v1: Vector2, color: Color) {
+    line(v0: Vector2, v1: Vector2, color: Color) {
         let [x0, y0] = v0;
         let [x1, y1] = v1;
         let steep = false;
@@ -77,7 +78,7 @@ export class TinyRenderer {
 
         for (let x = x0; x <= x1; x += 1) {
             // if transposed, de−transpose
-            steep ? this.setPixel([y, x], color) : this.setPixel([x, y], color);
+            steep ? this.pixel([y, x], color) : this.pixel([x, y], color);
 
             carry += sy;
             // carry > 0.5
@@ -89,7 +90,7 @@ export class TinyRenderer {
         }
     }
 
-    drawTriangle(v0: Vector3, v1: Vector3, v2: Vector3, color: Color) {
+    triangle(v0: Vector3, v1: Vector3, v2: Vector3, color: Color) {
         const [x0, y0] = v0;
         const [x1, y1] = v1;
         const [x2, y2] = v2;
@@ -109,7 +110,7 @@ export class TinyRenderer {
                     z > this.#zBuffer[y * this.width + x]
                 ) {
                     this.#zBuffer[y * this.width + x] = z;
-                    this.setPixel([x, y], color);
+                    this.pixel([x, y], color);
                 }
             }
         }

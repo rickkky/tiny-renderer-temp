@@ -1,5 +1,32 @@
 import { cross, Vector2, Vector3 } from './linear-algebra';
 
+// get the barycentric coordinates of `p` in triangle `(v0, v1, v2)`
+// the triangle's z-coordinate is ignored
+export function barycentric(
+    v0: Vector2 | Vector3,
+    v1: Vector2 | Vector3,
+    v2: Vector2 | Vector3,
+    p: Vector2,
+) {
+    const [x0, y0] = v0;
+    const [x1, y1] = v1;
+    const [x2, y2] = v2;
+    const [x, y] = p;
+
+    // homogeneous coordinate: [u, v, 1]
+    const hc = cross([x1 - x0, x2 - x0, x0 - x], [y1 - y0, y2 - y0, y0 - y]);
+
+    // the triangle is degenerate
+    if (hc[2] === 0) {
+        return [-1, 1, 1];
+    }
+
+    const u = hc[0] / hc[2];
+    const v = hc[1] / hc[2];
+
+    return [1 - u - v, u, v];
+}
+
 // line sweeping algorithm for triangle
 export function sweepLine(
     v0: Vector2,
@@ -41,31 +68,4 @@ export function sweepLine(
             callback([x, y]);
         }
     }
-}
-
-// get the barycentric coordinates of `p` in triangle `(v0, v1, v2)`
-// the triangle's z-coordinate is ignored
-export function barycentric(
-    v0: Vector2 | Vector3,
-    v1: Vector2 | Vector3,
-    v2: Vector2 | Vector3,
-    p: Vector2,
-) {
-    const [x0, y0] = v0;
-    const [x1, y1] = v1;
-    const [x2, y2] = v2;
-    const [x, y] = p;
-
-    // homogeneous coordinate: [u, v, 1]
-    const hc = cross([x1 - x0, x2 - x0, x0 - x], [y1 - y0, y2 - y0, y0 - y]);
-
-    // the triangle is degenerate
-    if (hc[2] === 0) {
-        return [-1, 1, 1];
-    }
-
-    const u = hc[0] / hc[2];
-    const v = hc[1] / hc[2];
-
-    return [1 - u - v, u, v];
 }
