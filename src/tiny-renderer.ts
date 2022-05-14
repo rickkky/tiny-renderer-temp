@@ -1,5 +1,5 @@
-import { isInside } from './triangle';
-import type { Vector2 } from './linear-algebra';
+import type { Vector2, Vector3 } from './linear-algebra';
+import { barycentric } from './triangle';
 
 // [r, g, b, a]
 type Color = [number, number, number, number];
@@ -8,6 +8,8 @@ const BYTES_PER_PIXEL = 4;
 
 export class TinyRenderer {
     #imageData: ImageData;
+
+    #zBuffer: number[] = [];
 
     constructor(width: number, height: number) {
         const canvas = document.createElement('canvas');
@@ -24,6 +26,7 @@ export class TinyRenderer {
         }
 
         this.#imageData = imageData;
+        this.#zBuffer = new Array(width * height).fill(-Infinity);
     }
 
     get width() {
@@ -86,7 +89,7 @@ export class TinyRenderer {
         }
     }
 
-    drawTriangle(v0: Vector2, v1: Vector2, v2: Vector2, color: Color) {
+    drawTriangle(v0: Vector3, v1: Vector3, v2: Vector3, color: Color) {
         const [x0, y0] = v0;
         const [x1, y1] = v1;
         const [x2, y2] = v2;
@@ -97,7 +100,15 @@ export class TinyRenderer {
 
         for (let x = xmin; x <= xmax; x++) {
             for (let y = ymin; y <= ymax; y++) {
-                if (isInside(v0, v1, v2, [x, y])) {
+                const bc = barycentric(v0, v1, v2, [x, y]);
+                const z = v0[2] * bc[0] + v1[2] * bc[1] + v2[2] * bc[2];
+                if (
+                    bc[0] >= 0 &&
+                    bc[1] >= 0 &&
+                    bc[2] >= 0 &&
+                    z > this.#zBuffer[y * this.width + x]
+                ) {
+                    this.#zBuffer[y * this.width + x] = z;
                     this.setPixel([x, y], color);
                 }
             }

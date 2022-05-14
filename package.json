@@ -15,7 +15,9 @@
     "bugs": {
         "url": "https://github.com/rickkky/tiny-renderer/issues"
     },
-    "scripts": {},
+    "scripts": {
+        "dev": "rollup -c -w"
+    },
     "dependencies": {
         "webgl-obj-loader": "^2.0.8"
     },

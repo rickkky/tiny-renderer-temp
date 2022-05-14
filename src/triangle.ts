@@ -1,4 +1,4 @@
-import { cross, Vector2 } from './linear-algebra';
+import { cross, Vector2, Vector3 } from './linear-algebra';
 
 // line sweeping algorithm for triangle
 export function sweepLine(
@@ -44,7 +44,13 @@ export function sweepLine(
 }
 
 // get the barycentric coordinates of `p` in triangle `(v0, v1, v2)`
-export function barycentric(v0: Vector2, v1: Vector2, v2: Vector2, p: Vector2) {
+// the triangle's z-coordinate is ignored
+export function barycentric(
+    v0: Vector2 | Vector3,
+    v1: Vector2 | Vector3,
+    v2: Vector2 | Vector3,
+    p: Vector2,
+) {
     const [x0, y0] = v0;
     const [x1, y1] = v1;
     const [x2, y2] = v2;
@@ -62,10 +68,4 @@ export function barycentric(v0: Vector2, v1: Vector2, v2: Vector2, p: Vector2) {
     const v = hc[1] / hc[2];
 
     return [1 - u - v, u, v];
-}
-
-// is the point `p` inside the triangle `(v0, v1, v2)`?
-export function isInside(v0: Vector2, v1: Vector2, v2: Vector2, p: Vector2) {
-    const bc = barycentric(v0, v1, v2, p);
-    return bc[0] >= 0 && bc[1] >= 0 && bc[2] >= 0;
 }

@@ -24,12 +24,13 @@ export function renderMesh(renderer: TinyRenderer, mesh: Mesh) {
     };
     const scale = (v: Vector3) => {
         // x, y are normalized coordinates between [-1,1]
-        const [x, y] = v;
+        const [x, y, z] = v;
         // scale the x and y to the canvas size
         return [
             ((x + 1) / 2) * renderer.width,
             ((y + 1) / 2) * renderer.height,
-        ] as Vector2;
+            z,
+        ] as Vector3;
     };
 
     const light: Vector3 = [0, 0, -1];
