@@ -1,10 +1,6 @@
-import type { Vector2, Vector3 } from './linear-algebra';
+import { BYTES_PER_PIXEL, Color, getPixel } from './image';
 import { barycentric } from './triangle';
-
-// [r, g, b, a]
-export type Color = [number, number, number, number];
-
-const BYTES_PER_PIXEL = 4;
+import { multiply, Vector2, Vector3 } from './linear-algebra';
 
 export class TinyRenderer {
     #imageData: ImageData;
@@ -90,7 +86,16 @@ export class TinyRenderer {
         }
     }
 
-    triangle(v0: Vector3, v1: Vector3, v2: Vector3, color: Color) {
+    triangle(
+        v0: Vector3,
+        v1: Vector3,
+        v2: Vector3,
+        t0: Vector2,
+        t1: Vector2,
+        t2: Vector2,
+        intensity: number,
+        texture: ImageData,
+    ) {
         const [x0, y0] = v0;
         const [x1, y1] = v1;
         const [x2, y2] = v2;
@@ -103,15 +108,30 @@ export class TinyRenderer {
             for (let y = ymin; y <= ymax; y++) {
                 const bc = barycentric(v0, v1, v2, [x, y]);
                 const z = v0[2] * bc[0] + v1[2] * bc[1] + v2[2] * bc[2];
+
                 if (
-                    bc[0] >= 0 &&
-                    bc[1] >= 0 &&
-                    bc[2] >= 0 &&
-                    z > this.#zBuffer[y * this.width + x]
+                    bc[0] < 0 ||
+                    bc[1] < 0 ||
+                    bc[2] < 0 ||
+                    z <= this.#zBuffer[y * this.width + x]
                 ) {
-                    this.#zBuffer[y * this.width + x] = z;
-                    this.pixel([x, y], color);
+                    continue;
                 }
+
+                const u = t0[0] * bc[0] + t1[0] * bc[1] + t2[0] * bc[2];
+                const v = t0[1] * bc[0] + t1[1] * bc[1] + t2[1] * bc[2];
+                let color = getPixel(texture, [
+                    u * texture.width,
+                    // flip y
+                    (1 - v) * texture.height,
+                ]);
+                color = [
+                    ...multiply(color.slice(0, 3), intensity),
+                    color[3],
+                ] as Color;
+
+                this.#zBuffer[y * this.width + x] = z;
+                this.pixel([x, y], color);
             }
         }
     }

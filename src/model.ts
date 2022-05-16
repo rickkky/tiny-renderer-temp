@@ -1,6 +1,13 @@
 import { Mesh } from 'webgl-obj-loader';
 import type { TinyRenderer } from './tiny-renderer';
-import { cross, dot, normalize, subtract, Vector3 } from './linear-algebra';
+import {
+    cross,
+    dot,
+    normalize,
+    subtract,
+    Vector2,
+    Vector3,
+} from './linear-algebra';
 
 export async function loadObjModel(path: string) {
     const response = await fetch(path);
@@ -8,7 +15,11 @@ export async function loadObjModel(path: string) {
     return new Mesh(text);
 }
 
-export function renderMesh(renderer: TinyRenderer, mesh: Mesh) {
+export function renderMesh(
+    renderer: TinyRenderer,
+    mesh: Mesh,
+    texture: ImageData,
+) {
     const getVertex = (index: number) => {
         const x = mesh.vertices[index + 0];
         const y = mesh.vertices[index + 1];
@@ -25,6 +36,11 @@ export function renderMesh(renderer: TinyRenderer, mesh: Mesh) {
             z,
         ] as Vector3;
     };
+    const getTexture = (index: number) => {
+        const u = mesh.textures[index + 0];
+        const v = mesh.textures[index + 1];
+        return [u, v] as Vector2;
+    };
 
     const light: Vector3 = [0, 0, -1];
 
@@ -35,15 +51,13 @@ export function renderMesh(renderer: TinyRenderer, mesh: Mesh) {
         const sc0 = scale(wc0);
         const sc1 = scale(wc1);
         const sc2 = scale(wc2);
+        const t0 = getTexture(mesh.indices[i + 0] * 2);
+        const t1 = getTexture(mesh.indices[i + 1] * 2);
+        const t2 = getTexture(mesh.indices[i + 2] * 2);
         const n = normalize(cross(subtract(wc2, wc0), subtract(wc1, wc0)));
         const intensity = dot(n, light);
         if (intensity > 0) {
-            renderer.triangle(sc0, sc1, sc2, [
-                255 * intensity,
-                255 * intensity,
-                255 * intensity,
-                255,
-            ]);
+            renderer.triangle(sc0, sc1, sc2, t0, t1, t2, intensity, texture);
         }
     }
 }
