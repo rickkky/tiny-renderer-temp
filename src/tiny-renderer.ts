@@ -1,6 +1,6 @@
 import { BYTES_PER_PIXEL, Color, getPixel } from './image';
 import { barycentric } from './triangle';
-import { multiply, Vector2, Vector3 } from './linear-algebra';
+import { scale, Vector2, Vector3 } from './linear-algebra';
 
 export class TinyRenderer {
     #imageData: ImageData;
@@ -126,7 +126,7 @@ export class TinyRenderer {
                     (1 - v) * texture.height,
                 ]);
                 color = [
-                    ...multiply(color.slice(0, 3), intensity),
+                    ...scale(color.slice(0, 3), intensity),
                     color[3],
                 ] as Color;
 

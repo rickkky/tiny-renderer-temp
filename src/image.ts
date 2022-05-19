@@ -1,7 +1,7 @@
-import { Vector2 } from './linear-algebra';
+import { Vector2, Vector4 } from './linear-algebra';
 
 // [r, g, b, a]
-export type Color = [number, number, number, number];
+export type Color = Vector4;
 
 export const BYTES_PER_PIXEL = 4;
 
