@@ -42,6 +42,38 @@ export class Vector extends Array<number> {
         return Math.sqrt(this.reduce((acc, n) => acc + n * n, 0));
     }
 
+    get x() {
+        return this[0];
+    }
+
+    set x(n: number) {
+        this[0] = n;
+    }
+
+    get y() {
+        return this[1];
+    }
+
+    set y(n: number) {
+        this[1] = n;
+    }
+
+    get z() {
+        return this[2];
+    }
+
+    set z(n: number) {
+        this[2] = n;
+    }
+
+    get w() {
+        return this[3];
+    }
+
+    set w(n: number) {
+        this[3] = n;
+    }
+
     clone() {
         return new Vector(...this);
     }
