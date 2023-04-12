@@ -14,7 +14,7 @@ export abstract class Vector {
     }
 
     get size() {
-        return Math.sqrt(this.array.reduce((acc, n) => acc + n * n, 0));
+        return Math.hypot(...this.array);
     }
 
     get 0() {
